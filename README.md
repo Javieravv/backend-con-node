@@ -1,2 +1,3 @@
-# backend-con-node
-Ejercicios del curso de Backend con Node.
+# BNackend con Node.js
+
+Curso de Backend con Node.Js
