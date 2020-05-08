@@ -8,6 +8,8 @@ Notas Importantes:
 
 2. [Anotaciones del compañero Jasán Hernández](https://github.com/JasanHdz/backendnodejs/tree/master/notes#duplex-y-transforms-streams). Estos apuntes están realmente buenos. Sí que valen la pena.
 
+3. [Repositorio del curso](https://github.com/glrodasz/platzi-backend-node/tree/introduccion-a-streams)
+
 ## ¿Qué es Node.js?
 
 Node.js es un entorno de ejecución para JavaScript construido con el motor JavaScript V8 de Chrome. JavaScript es un lenguaje interpretado pero en Node.js tenemos algo llamado el JIT Compiler que es una especie de monitor que optimiza fragmentos de código que son ejecutados frecuentemente.
@@ -169,7 +171,119 @@ Se usa el módulo nativo _http_.
 
 En esta clase usamos **_Postman_** para poder ver el ejemplo con el servidor eco, pues en el ejemplo dado el servidor no se puede correr directamente en la url.
 
+# Manejo y uso de Streams con Node.js
 
+## Introducción a Streams
+
+Los Streams son una colección de datos como los arrays o strings sólo que se van procesando pedazo por pedazo, esta capacidad los hace muy poderosos porque podemos manejar una gran cantidad de datos de manera óptima.
+
+### Notas de los compañeros
+
+1. Interesante, en vez de cargar el archivo de una sola vez y agotar la memoria. Se va cargando por lotes o fracciones reduciendo así el consumo de memoria y una eventual sobrecarga del servidor.
+
+2. [Artículo sobre Streams en Node.js](https://elabismodenull.wordpress.com/2017/03/28/el-manejo-de-streams-en-nodejs/)
+
+3. La diferencia entre fs.readFile y fs.createReadStream es que el primero hace que el contenido se ocupe en una parte de la memoria, mientras que el segundo procesa la información por partes.
+
+4. Los streams al igual que un arreglo o una cadena de texto, es una colección de datos, con la diferencia que los stream dividen estos datos en varias sesiones, dándonos un mejor rendimiento en la memoria.
+Para poder usar streams, lo hacemos con el modulo de fyle system, fs.
+Este tendrá dos métodos, createReadStream y createWriteableStream.
+El primero nos funciona para transformar archivos a stream, es decir, leerlos, mientras que el segundo para crearlos o editarlos.
+Controlar los streams nos permitirá manejar mucho mejor el consumo de memoria de nuestro servidor.
+
+## Readable y Writable streams
+
+Los Readable y Writeable streams tienen los siguientes eventos y funciones respectivamente:
+
+### Readable
+
+**Eventos**
+
+- data. Se dispara cuando recibe datos.
+- end. Se dispara cuando termina de recibir datos.
+- error. Se dispara cuando hay un error.
+
+**Funciones**
+
+- pipe
+- unpipe
+- read
+- push
+
+### Writeable
+
+**Eventos**
+
+- drain. Se dispara cuando emite datos.
+- finish. Se dispara cuando termina de emitir.
+- error. Se dispara cuando hay un error.
+
+**Funciones**
+
+- write
+- end
+
+Recuerda que tienen estos eventos porque los heredan de la clase **EventEmitter**.
+
+### Notas de los compañeros
+
+1. No entendí para que el size si nunca lo usa?
+
+Rta. Cuando se crea un stream se puede definir el tamaño (size) del buffer, este tamaño representa el número de bytes que el buffer puede almacenar, esto lo puedes utilizar cuando tienes un tamaño de memoria limitado y quieres asegurarte que el buffer no sobrepasen un tamaño que perjudique tu servidor, esto no se menciona en el video pero este size se define en el constructor (el método read(size)) del readable stream, este parámetro es opcional y por defecto es de 16kb para un readable stream normal y de 64kb para un readable stream del fs.
+Espero haberte ayudado, por si no me explique bien acá te dejo un enlace con mas info del size 
+
+2. [Aquí un gran artículo en inglés sobre el tema](https://www.freecodecamp.org/news/node-js-streams-everything-you-need-to-know-c9141306be93/)
+
+Este artículo sí que es bueno y muy similar a lo que la clase explica.
+
+3. Todos los streams son instancias de EventEmitter.
+
+4. [Tabla de códigos ASCII](https://ascii.cl/)
+
+## Duplex y Transform Streams
+
+Ambos sirven para simplificar nuestro código:
+
+**Duplex**: implementa los métodos write y read a la vez.
+
+**Transform**: es similar a Duplex pero con una sintaxis más corta.
+
+[Documentación de Streams](https://nodejs.org/api/stream.html#stream_duplex_and_transform_streams)
+
+# Uso de utilidades de Node.js
+
+## Sistema Operativo y Sistema de Archivos.
+
+Hay dos módulos básicos:
+
+- **os**. Sirve para consultar y manejar los recursos del sistema operativo.
+- **fs**. Sirve para administrar (copiar, crear, borrar etc.) archivos y directorios.
+
+Los métodos contenidos en estos módulos (y en todo Node.js) funcionan de forma asíncrona por default, pero también se pueden ejecutar de forma síncrona, por ejemplo el método readFile() tiene su versión síncrona readFileSync().
+
+### Notas compañeros.
+
+1. Para saber la información de las redes: 
+
+```console.log('IP address', os.networkInterfaces());```
+
+Con eso se fijan todas sus interfaces de su red y luego con esto pueden mapear alguna para mostrarla
+
+```console.log('IP address', os.networkInterfaces()['nombre red].map(i => i.address));```
+
+2. Para interfaces WiFi en windows.
+
+```console.log("IP addres", os.networkInterfaces().WiFi.map(i => i.address));```
+
+3. [** npm** package que ayudará con el display/La muestra de los logs Chalk](https://www.npmjs.com/package/chalk)
+
+4. Con Node podremos interactuar directamente con el sistema operativo gracias a su modulo os, (operative system).
+Gracias a este modulo podremos conocer las diferentes características de nuestro sistema o del sistema donde esta en uso, para poder ejecutar acciones según esta.
+Por ejemplo, la cantidad de cpus que tiene, o la capacidad de memoria libre que tiene actualmente.
+También con Node podremos manipular los directorios y archivos de nuestro sistema, con el módulo fs, (File System). Con este módulo podremos hacer prácticamente todas las acciones que nosotros podemos hacer en nuestro directorio, crear, editar y/o eliminar archivos o carpetas enteras.
+Es importante tener en cuenta que la mayoría de los métodos de estos módulos suelen ser asíncronos, ya que Node siempre trata de ser así, pero Node también nos ofrece su versión síncrona por si lo llegamos a requerir
+
+## Administrar directorios y archivos
 
 
 
