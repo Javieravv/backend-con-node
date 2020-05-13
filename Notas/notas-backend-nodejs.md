@@ -285,6 +285,121 @@ Es importante tener en cuenta que la mayoría de los métodos de estos módulos 
 
 ## Administrar directorios y archivos
 
+La palabra clave **__dirname** tiene la información del directorio actual.
+
+Con el módulo fs podemos utilizar muchas cosas relacioandas con manejo de archivos y directorios, como leer directorios, crear directorios, borrarlos, copiar archivos, borrar archivos, etc.
+
+Con este código podemos crear directorios recursivamente:
+
+```
+fs.mkdir('platzi/escuela-js/node', { recursive: true }, (err) => {
+    if (err) {
+        return console.log (err);
+    }
+});
+```
+
+### Notas de los compañeros
+
+1. Para borrar archivos pueden usar el metodo ‘unlink’ de fs pasandole como primer parametro el archivo que desean borrar y como segundo parametro un callback
+
+2. Pasados los vectores como parametros en el comando de ejecucion:
+
+```
+const fs = require('fs');
+const arg1= process.argv[2];
+const arg2= process.argv[3];
+
+fs.copyFile(arg1, arg2, error => {
+    if (error) {
+        console.log(error);
+    }
+    console.log(`${arg1} fue copiado como ${arg2}`);
+})
+```
+3. Si no les funciona el mkdir con múltiples subcarpetas, asegúrense de tener una versión de NodeJS actualizada.
+
+## Consola, utilidades y Debuggin
+
+Con la consola se pueden hacer muchas cosas en Node.js. Por defecto todo lo que se imprime por consola, usando console.log se va por el stdout, y todo lo que se imprime con console.err se va por stderr.
+
+Con la clase consola se puede determinar estos aspectos para hacer cosas distintas, buscando con ello que en un archivo determinado se impriman los mensajes de console.log y en otro de console.err
+
+Las utilidades console.info y console.warn son muy similares a console.log
+
+La utilidad deprecate sirve para hacer un wrap de una funciòn que ya está obsoleta y se quiere informar de ello a los usuarios.
+
+Para hacer debuggin en node se usa el flag --inspect
+
+```node --inspect nombrearchivo.js ```
+
+### Comentarios compañeros
+
+1. [Artículo para poner colores a la consola](http://voidcanvas.com/make-console-log-output-colorful-and-stylish-in-browser-node/)
+
+[Aquí pueve verse otro artículo sobre el mismo tema](https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color)
+
+2. Node como modulo nativo nos ofrece el modulo de console, que suele ser muy útil para hacer un debugging básico de nuestro código y conocer funcionalidades de nuestro codigo.
+
+Para realizar un buen debugging de nuestro código, podemos utilizar el comando node --inspect. El cual nos abrirá un navegador con la consola para debuggear de una manera mas avanzada y practica para nosotros.
+
+3. El módulo útil esta diseñado para resolver las necesidades internas de las API de Node, sin embargo muchas de estas utilidades también son útiles para los módulos de las aplicaciones en desarrollo. Se puede acceder a estas utilidades usando:
+
+```const util = require('util');```
+
+**util.format()**
+
+El método util.format () devuelve una cadena formateada utilizando el primer argumento como una cadena de formato tipo printf que puede contener cero o más especificadores de formato. Cada especificador se reemplaza con el valor convertido del argumento correspondiente. Los especificadores compatibles son:
+
+%s - String
+%d - Number
+%i - parseInt(value, 10)
+%f - parseFloat(value)
+%j - JSON
+%o - Object
+%c - Css
+%% - signo de '%'
+
+**Inspector**
+
+Cuando se inicia la inspección --inspect, Node escucha a un cliente de depuración , Por defecto escuchara el host y el puerto 127.0.0.1:9229 y a cada proceso se le asigna un id único.
+Opciones de la línea de comandos
+
+--inspect: Habilita el agente de inspección y escucha el puerto por defecto 127.0.0.1:9229
+--inspect=[host:port]: Habilita el agente de inspección, vincula la dirección y el puerto a la dirección de inspección.
+
+## Cluster y procesos hijo.
+
+Sobre este tema leer [este artículo](https://platzi.com/clases/1646-backend-nodejs/22024-clusters-y-procesos-hijos/)
+
+Puede verse más información [en este vínculo](https://pinchito.es/2013/modo-cluster). También en la documentación oficial.
+
+# Primer Proyecto con Express.js
+
+## ¿Qué es Express y para qué sirve?
+
+Express.js es un framework para crear Web Apps, Web APIs o cualquier tipo de Web Services, es libre bajo la licencia MIT.
+
+Express es muy liviano y minimalista además de ser extensible a través de Middlewares.
+
+Los Middlewares interceptan el request y el response para ejecutar una acción en medio.
+
+1. Características de Express:
+
+minimalista
+template engines
+routing (uso de expreciones regulares)
+middlewares
+plugins
+
+## Creando primer servidor con Express.js
+
+Para el desarrollo del curso se creará un Backend para el proyecto de Platzi Video. Estará en la carpeta ```movies.api```
+
+
+
+
+
 
 
 
