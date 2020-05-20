@@ -384,17 +384,235 @@ Express es muy liviano y minimalista además de ser extensible a través de Midd
 
 Los Middlewares interceptan el request y el response para ejecutar una acción en medio.
 
+### Notas compañeros
+
 1. Características de Express:
 
 minimalista
 template engines
 routing (uso de expreciones regulares)
-middlewares
-plugins
+middlewares: interceptar request y response object.
+plugins: hay gran cantidad de ellos
 
 ## Creando primer servidor con Express.js
 
 Para el desarrollo del curso se creará un Backend para el proyecto de Platzi Video. Estará en la carpeta ```movies.api```
+
+## Creando el primer servidor en Express.
+
+Lo primero es crear nuestro package.json y dentro de él crear todos los scripts, dependencias, etc., que se requiera para el proyecto.
+
+Creamos luego una configuración para eslint, en el archivo ```.eslintrc.json```, que quedará así:
+
+```
+{
+    "parserOptions": {
+      "ecmaVersion": 2018                             /** indica la versión de EcmaScript que se va a usar
+    }, 
+    "extends": ["eslint:recommended", "prettier"],    /** Indica que extienda la versión recomendada y que utilice prettier
+    "env": {                                          /** Configura las variables de entorno indicando que se usarán es6, node, mocha
+      "es6": true,
+      "node": true,
+      "mocha": true
+    },
+    "rules": {                                        /** regla de no poner la consola es unicamente un warning, no un error
+      "no-console": "warn"
+    }
+  }
+  ```
+Después configuramos prettier para que se puedan tener reglas estándar en la codificación que deben usar los programadores y que serán leídas por el editor que se use. Esta configuración estará en el archivo **_.prettierrc.json_** y quedará así:
+
+```
+{
+  "tabWidth": 2,        /** numero de espacios en los taps 
+  "semi": true,         /** que se utilice ; 
+  "singleQuote": true   /** comillas simples no dobles
+}
+```
+
+Puede configurarse a gusto del cliente.
+
+Luego se instalan las dependencias de producción, así:
+
+- Express
+- Dotenv
+
+Las dependencias de desarrolo serán:
+
+- nodemon
+- eslint
+- eslint-config-prettier
+- eslint-plugin-prettier
+- prettier
+
+Instalamos un hook que sirve para que el código haga el formateo autom{atico cada que vez que se haga commit y se suba a un repositorio
+
+```
+npm i express dotenv
+npm i -D nodemon eslint eslint-config-prettier eslint-plugin-prettier prettier
+npmx mrm lint-staged
+```
+
+**Es posible que genere un error porque nodemon ya puede estar instalado**.
+
+Luego creamos un nuevo archivo de configuración que servirá para la carga de las variables de entorno, en caso que se cambie la manera de cargar. Estará en la carpeta _config_ y se llamara **index.js**, cuyo contenido será:
+
+```
+require('dotenv').config()
+
+const config = {
+    dev: process.env.NODE_ENV !== 'production',
+    port: process.env.PORT || 3000
+}
+
+module.exports = { config };
+
+```
+
+Importante lo de port, pues debe asegurarse que no se queme, y que haya un puerto disponible para la aplicación.
+
+Luego creamos el servidor de Express.
+
+**_Se instaló una extensión para VSCode que ayuda a automáticamente insertar archivos que se requieran. _**
+
+### Notas compañeros de clase.
+
+1. **dotenv**
+Es un módulo independiente que carga variables de entorno de un archivo .env en process.env.
+npm i express dotenv
+
+**Nodemon**
+Nodemon es una utilidad que supervisará cualquier cambio en los recursos y reiniciará automáticamente su servidor.
+npm i -D nodemon eslint eslint-config-prettier eslint-plugin-prettier prettier
+
+**Husky hooks**
+Es un módulo que puede prevenir realizar git commit o git push sin formato u otros conflictos no deseados.
+npx mrm lint-staged
+
+2. Si estan en windows y la consola le salta error ‘porque no reconoce a DEBUG=app:*’, coloquen ‘**set **DEBUG=app…’ y de paso tambien tienen que usar & antes de nodemon index
+
+3. Para crear los scripts del package.json en windows se deben separar los comandos con &
+```
+"scripts": {
+    "dev": "DEBUG=app:* & nodemon index",
+    "start": "NODE_ENV=production & node index.js"
+},
+```
+
+4. En package.json en el script de desarrollo se puede incluir en nodemon más tipos de archivos para que se refresquen automáticamente cuando sean modificados:
+
+parámentro -e
+
+Linux Mac:
+“dev”: “DEBUG=app:* nodemon index -e js,hbs,html,css”,
+
+Windows:
+“dev”: “set DEBUG=app:* &nodemon index -e js,hbs,html,css”
+
+## Request y Response Objects
+
+[Ver el artículo de Platzi](https://platzi.com/clases/1646-backend-nodejs/22027-request-y-response-objects/)
+
+# Aprendiendo a crear un API con REST
+
+## Anatomía de una API Restful
+
+REST (Representational State Transfer) es un estilo de arquitectura para construir web services, no es un estándar pero si una especificación muy usada.
+
+Las peticiones HTTP van acompañadas de un “verbo” que define el tipo de petición:
+
+- GET. Lectura de datos.
+- PUT. Reemplazar datos.
+- PATCH. Actualizar datos en un recurso específico.
+- POST. Creación de datos.
+- DELETE. Eliminación de datos.
+
+No es recomendable habilitar un endpoint de tipo PUT y DELETE para toda nuestra colección de datos, sólo hacerlos para recursos específicos, ya que no queremos que por error se puedan borrar todos nuestros datos.
+
+[ESta página es útil para APIS. - www.swagger.io](https://swagger.io/)
+
+### Notas de los compañeros.
+
+1. Delete jamás me ha tocado usarlo, o al menos a mi que me ha tocado manejar grandes cantidades de datos, al eliminar un dato se pierde la integridad de la DB, lo que se hace es hacer un borrado lógico además de mantener la relación en la auditoría.
+
+2. CRUD: Create - Read- Update - Delete
+
+3. No me queda muy claro por qué no aplica POST para /api/movies/:id. Alguien me ayuda por favor?
+
+Re* spuesta: _Porque cuando estás haciendo Post es para crear una nueva movie, si esta movie no está creada no tienes un id porqu este id se genera de manera sistematizada en el backend para asegurar que no se repita 😄_
+
+## Estructura de una película con Moockaru
+
+_Mockaroo*_ es un servicio que nos permite crear datos simulados a partir de una estructura, por ejemplo para generar la estructura de nuestra película:
+
+```
+{
+    id: 'd2a4a062-d256-41bb-b1b2-9d915af6b75e',
+    title: 'Notti bianche, Le (White Nights)',
+    year: 2019,
+    cover: 'http://dummyimage.com/800x600.png/ff4444/ffffff',
+    description:
+      'In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus.',
+    duration: 66,
+    contentRating: 'G',
+    source: 'https://ovh.net/semper/rutrum/nulla/nunc.jsp',
+    tags: [
+      'Action|Adventure',
+      'Action|Adventure|Thriller',
+      'Horror|Western',
+      'Horror|Thriller',
+      'Comedy|Romance|Sci-Fi',
+      'Adventure|Animation|Children|Comedy|Fantasy',
+      'Drama'
+    ]
+  }
+```
+
+## Implementando un CRUD en Express.js
+
+Las siglas CRUD vienen de las palabras en inglés:
+
+* Create - crear
+* Read - leer
+* Update - actualizar
+* Delete - eliminar
+
+En este ejercicio se creó la ruta para obtener todas las películas, a través de Express, Router y ayudados por Postman.
+
+### Notas de los compañeros.
+
+1. Otra alternativa a Postman es [Insomnia](https://insomnia.rest/download/), muy similar a Postman.
+
+2. Si no tienen Postman, igual pueden hacer la consulta GET en el navegador en: http://localhost:3000/api/movies
+
+3. ¿Por qué no se usa PUT y sí patch? ¿cual es la diferencia ?
+
+Respuesta: "_Ambos se utilizan para realizar UPDATE en la data, la diferencia es que con el PUT debes enviar todo el set de datos que conforman la entidad que quieres actualizar, aunque solo quieras modificar un valor de este, y con el PATCH puedes enviar únicamente la el elemento que deseas modifcar._"
+
+4. Si quieren saber acerca de cuando se debe aplicar cada código http hay un diagrama enorme. Siempre es útil tenerlo a la mano si no sabes que código mandar dependiendo la situación 🕵️‍♂️
+
+[Aquí puede verse](https://github.com/for-GET/http-decision-diagram)
+
+5. [Códigos de estado de respuesta HTTP:](https://developer.mozilla.org/es/docs/Web/HTTP/Status)
+
+## Métodos idempotentes del CRUD
+
+Se implementa el resto de métodos del crud, utilizando los métodos **get**, **post** (para crear), **put** (para actualizar) y **delete** (para borrar).
+
+Se prueba ayudados por Postman, en donde se creó una variable global para no tener que repetir tanto la dirección del servidor. (En este caso es http://localhost:3000). La variable de entorno se llamó _url_. Para usarla: _{{url}}_
+
+El gitignore nos ayuda qué archivos no compartir en el repositorio.
+
+Se ayuda con la página [www.gitignore.io](www.gitignore.io)
+
+[Colecciones de Postman](https://drive.google.com/drive/folders/1Latsb5hLuGS9XuLprGtbpgL3NLGnxh6O)
+
+
+
+
+
+
+
 
 
 
