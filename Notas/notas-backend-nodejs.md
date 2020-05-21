@@ -607,18 +607,240 @@ Se ayuda con la página [www.gitignore.io](www.gitignore.io)
 
 [Colecciones de Postman](https://drive.google.com/drive/folders/1Latsb5hLuGS9XuLprGtbpgL3NLGnxh6O)
 
+## Implementando una capa de servicios
+
+La arquitectura tradicional MVC se queda corta en aplicaciones modernas, por eso necesitamos una arquitectura diferente cómo la **Clean Arquitecture** que tiene una capa de servicios para manejar la lógica de negocio.
+
+No basta con tener modelo, vista y controlador, sino una distinta que tiene controladores, servicios y librerías. Los controladores solo llaman servicios y estos pueden llamar otros servicios y librerías.
+
+Se sugiere dejar de usar MVC.
+
+En el ejercicio se creó un archivo que contiene los diferentes servicios que se proveen a la API, como **get**, **put**, **patch**, **post**, **delete**. Una vez hecho esto estos servicios gestionan la API, efecutando los procesos CRUD. Se prueba con postman.
+
+### Notas de los compañeros.
+
+1. ¿Qué son servicios?
+
+Por ejemplo en una red social los servicios serían:
+posts
+users
+chat
+cada feature de tu app tendra un servicio que lo gestione
 
 
+¿Qué es la lógica de negocios?
+
+La logica de negocio es toda la logica que le agregas a cada servicio. Por ejemplo cada vez que un usuario se crea:
+
+- se autenticara
+- se guardara la fecha de creacion
+- etc etc
+
+En la logica de negocio definis que pasa con cada accion. 
+
+Esta **clean architecture** se basa en **_controller(routes)_**, **_services(logica de negocio)_** y **_librerias(acceso a DB)_**.
+
+2. [Más información sobre **Clean Arquitecture**](https://blog.logrocket.com/the-perfect-architecture-flow-for-your-next-node-js-project/)
+
+3. Recordar que la diferencia entre PUT y PATH es:
+
+**PUT**: remplazo total del recurso.
+**PATH**: actualización de algunos elementos del recurso.
+
+[Artículo sobre el tema](https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b)
+
+4. Las rutas están para enviar los parámetros y datos a los servicios, los servicios saben de la lógica de negocio y saben devolver respuestas.
+
+5. La diferencia entre req.query y req.params, es que paramentros se utiliza cuando estan establecidos en la URL y query cuando se usa ?, el nombre query y se puede concatenar.
+
+6. **Controladores**: Es toda la capa del middleware y el router que se comunica con al API y reciben/envia Json.
+Los controladores no llaman a otros controladores, solo llaman servicios.
+
+**Servicios**: Contiene toda la logica de negocio. Los servicios pueden llamar a otros servicios o librerias.
+
+**Librerias**: Es la capa que adjunta librerias externas, bases de datos, bases de datos en la nube.
+
+7. [Imagen sobre arquitectura Clean]()
+
+8. De lo que mencionas al final de la clase me queda el principio de responsabilidad única de la programación.
+
+El panadero que haga pan, el ladrillero que haga ladrillo.
+
+En la práctica recuerdas la idea de separar responsabilidad cuando hablas de las rutas y los servicios. No sobrcargar.
+
+# Cómo funcionan los Middleware en Express.js
+
+## Creación de una BD en MongoAtlas.
+
+Creamos una base de datos **_MongoDb_** en la utilidad [MongoAtlas](www.mongodb.com/cloud/atlas)
+
+Haremos unso de las variables de entorno para trabajar en producción o en desarrollo, para lo cual se usarán distintas bases de datos.
+
+Para crear una BD en Mongo Atlas, se siguen estos pasos:
+
+- Crear una cuenta en Mongo Atlas
+- Seguir los pasos para configurar un Cluster. Se recomienda dejar la que tiene por defecto.
+- REvisar ciertas configuraciones, como el **Network Access**, para ver qué IP puede conectarse a la base de datos. Se aconseja restringir conexciones por IP.
+
+- Una vez creada la base de datos, se crea un usuario, con las configuraciones que se quieran. Para el ejercicio, un usuario que solo lee y escribe. Para este caso:
+
+```
+usuario: db_user_xavier
+password: DBXavier1
+```
 
 
+MongoDb crea varias instancias de la base de datos (Clusters).
+
+Luego de creada la base de datos, debemos buscar los datos de conexión, lo cual puede hacerse pulsando la opción **connect**, pudiendo ahí ver la URL a la cual nos conectaremos.
+
+Lo que resta es crear la base de atos, lo cual se hace con la opción **collections**
+
+Para este caso será:
+
+Nombre base: **_platzivideos_db_**
+Nombre colección: **_movies_**
+
+## Conexión a MongoAtlas una instancia de MongoDB
+
+Una vez creada la base de datos en MongoDb, nos conectaremos a ella utilizando Express.js.
+
+Debe primero instalarse el paquete MongoDb, con ```npm i mongodb``` en modo de producción.
+
+Luego creamos dos archivos para agregar las variables de entorno: **.env.example** y **.env**
+
+.env.example es necesario para saber qué variables de entorno alimenta localemente. 
+
+.env es el que tiene las variables de entorno. Nunca deben subirse a los repositorios.
+
+En esos archivos se colocarán las variables que servirán para conectarse a la base de datos de MongoDb.
+
+Luego de crear las variables de entorno se actualizan en el archivo de configuración.
+
+Después creamos un archivo de librerías.
+
+**_Se instaló el plugin material icon theme en Vs Code_**
+
+### Notas de los compañeros.
+
+1. Creo que sería más limpio usar un patron repository y injectar la dependencia de mongo. Así queda desacoplado y el día de mañana se puede cambiar mongo por otro client.
+
+2. ¿Entonces el archivo .env debe ir al .gitignore?
+
+Respuesta: _"Si companero, el archivo .env lo agregas en .gitignore, el que puedes omitir es el archivo .env.example. En este solo declaras el nombre de las variables globales pero no su contenido."_
+
+3. ¿Queésucedio con ObjectId? lo importamos pero no lo utilizamos
+
+Sirve para genererar un ID de cada dato insertado, te lo genera mongo por defecto pero se ocupará más adelante
+
+4. **retryWrite = true**
+
+Las escrituras recuperables permiten a los controladores MongoDB reintentar automáticamente ciertas operaciones de escritura una sola vez si encuentran errores de red, o si no pueden encontrar un primario sano en los conjuntos de réplica o clúster fragmentado.
+[Ver la documentaión](https://docs.mongodb.com/manual/core/retryable-writes/)
+
+**w=majority**: Solicita el reconocimiento de que las operaciones de escritura se han propagado al majority ( M) de los miembros con derecho a voto. La mayoría ( M) se calcula como la mayoría de todos los miembros con derecho a voto [1] , pero la operación de escritura devuelve el reconocimiento después de propagarse al número M de miembros con derecho a voto (primarios y secundarios con members[n].votesmayor que 0).
+
+Por ejemplo, considere una réplica configurada con 3 miembros votantes, Primario-Secundario-Secundario (PSS). Para este conjunto de réplica, M es dos [1] , y la escritura debe propagarse a la primaria y una secundaria para reconocer la preocupación de escritura al cliente._
+[Ver documentación](https://docs.mongodb.com/manual/reference/write-concern/)
+
+## Conexión con Robot3T y MongoDB Compass a una BD
+
+[Documento de platzi sobre ese tema](https://platzi.com/clases/1646-backend-nodejs/22034-conexion-con-robot3t-y-mongodb-compass-a-una-bd/)
+
+## Implementación de las acciones CRUD de MongoDb
+
+Los métodos de MongoDB para implementar un CRUD son:
+
+Create: insertOne
+Read: find, findOne
+Update: updateOne
+Delete: deleteOne
+
+- [Documentación sobre colecciones MongoDb](https://docs.mongodb.com/manual/reference/method/js-collection/)
+
+- [Documentación sobre operaciones con MongoDb](https://docs.mongodb.com/manual/crud/)
+
+- [Muy buen libro sobre MongoDb](https://github.com/uokesita/the-little-mongodb-book/blob/master/es/mongodb.markdown)
+
+### Notas de los compañeros.
+
+1. No deberiamos controlar el rechazo de la promesa de connect con el catch y mostar un mensaje si llegara a fallar la conexion.
+Donde posteriormente en los servicios verificariamos el valor que retornara la funcion,en este caso,por ejemplo en getAll
+devuelvo null en caso de que falle y en el servicio validaria si me regresa un falsyvalue(null,undefines,etc),y responder algo al respecto.
+
+```
+async getAll({ collection, filter = {} }) {
+    let response = null;
+    try {
+      const db = awaitthis.connect();
+      response = await db.collection(collection).find(filter).toArray();
+    }
+    catch(e) {
+      console.log(`ERROR: ${e.message}`);
+    }
+
+    return response;
+  }
+``` 
+## Conexión de nuestros SErvicios con MongoDb
+
+En este capítulo se hace uso de los servicios, ya no con los datos falsos sino con datos persistentes alojados en la base de datos de MongoDb.
+
+Para eso modificamos el archivo movies.js en los servicios, para conectarnos con la librería de MongoDb.
+
+Pueden verse los datos con la aplicación descargada de Mongo Atlas, desde donde también se pueden insertar, modificar y eliminar registros.
+
+Hacer uso también de las variables de entorno y de las colecciones creadas en Postman. Hacen mucho más fácil la vida para hacer pruebas.
+
+**Para el challenge de la clase, deberá estudiarse cómo crear una instancia local de Mongo Db y desde ahí conectarse a la aplicación. Tener en cuenta los archivos env, que deberán modificarse para la nueva información de la instancia local.**
+
+### Notas de los compañeros.
+
+1. Algún heroe sin capa que explique esta linea a detalle: ```const query = tags && {tags: {$in: tags}};```
+
+Respuesta:
+
+Esto es lo que se llama un IF Ternario, cumple la misma función de un condicional IF, nada más que escrito de distinta manera.
+
+```
+const ifBasico = <condición> && <haz esto>;
+const ifConElse = <condición> && <haz esto> : <sino haz esto>;
+```
+En el caso del profesor, lo que hace es una verificación para ver si la variable tags está definida (hay datos) y en caso de que así sea está creando un objeto con el atributo tags
+
+2. Una alternativa puede ser Model View Controller(MVC) y se puede usar [Moongose](https://mongoosejs.com/) si se te dificulta el clean code architecture.
+
+3. A diferencia de los JSON que escribimos comúnmente, para que express logre parcear correctamente el json, deben usar comillas dobles en la clave.
+
+```
+//bad 💥
+{
+	title: "lorem ipsum"
+}
+
+// bad 💥
+{
+	'title': 'lorem ipsum'
+}
 
 
+//Good ✨
+{
+	"title": "lorem ipsum"'
+}
+```
 
+4. Para conectarme a mi base de datos tuve que modificar mi endpoint de la siguiente manera
 
+```const MONGO_URI = `${config.dbConnectionType}://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}`;```
 
+Donde _dbConnectionType_ cambia a mongodb, también tuve que quitar la base de datos porque tenemos el código
 
+```resolve(this.client.db(this.dbName));```
 
+En ese código realizamos de nuevo la conección a una base de datos específica, si alguien batalla por conectarse a base de datos privada, le ayudaré desde este mensaje.
 
+# Conoce como funcionan los Middleware en Express.js
 
 
 

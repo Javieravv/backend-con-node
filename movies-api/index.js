@@ -9,6 +9,11 @@ const app = express();
 // Cargamos el archivo de configuración 
 const { config } = require('./config/index');
 const moviesApi = require ('./routes/movies');
+
+// para que cuando se envíen datos en formato JSon sepan interpretarlos las rutas
+// es un middeware de body parser
+app.use(express.json());
+
 moviesApi(app);
 
 // // primeras rutas
