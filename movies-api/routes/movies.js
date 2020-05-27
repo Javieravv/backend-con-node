@@ -9,6 +9,14 @@
 const express = require('express');
 const MoviesService = require('../services/movies');
 
+const {
+  movieIdSchema,
+  createMovieSchema,
+  updateMovieSchema
+} = require('../utils/schemas/movies');
+
+const validationHandler = require('../utils/middleware/validationHandler');
+
 // const { moviesMock } = require('../utils/mocks/movies');
 
 
@@ -24,68 +32,68 @@ function moviesApi(app) {
   const moviesService = new MoviesService();
 
   router.get("/", async function (req, res, next) {
+    // const movies = await Promise.resolve(moviesMock);
+    const { tags } = req.query;
+
     try {
-      // const movies = await Promise.resolve(moviesMock);
-      const { tags } = req.query;
-      const movies = await moviesService.getMovies({
-        tags
-      }); // lo traemos del servicio
+      const movies = await moviesService.getMovies({ tags }); // lo traemos del servicio
+      // throw new Error("ESTE ES UN ERROR EN GETTING MOVIES...");
 
       res.status(200).json({
         data: movies,
         message: 'Movies listed...!!'
       })
-    } catch(err) {
+    } catch (err) {
       next(err);
     }
   });
 
-  router.get("/:movieId", async function (req, res, next) {
+  router.get("/:movieId", validationHandler({ movieId: movieIdSchema }, 'params'), async function (req, res, next) {
     const { movieId } = req.params;
     try {
       // const movies = await Promise.resolve(moviesMock[0]);
-      const movies = await moviesService.getMovie( { movieId });
+      const movies = await moviesService.getMovie({ movieId });
 
       res.status(200).json({
         data: movies,
         message: 'Movie retrieved...!!'
       })
-    } catch(err) {
+    } catch (err) {
       next(err);
     }
   });
 
-  router.post("/", async function (req, res, next) {
+  router.post("/", validationHandler(createMovieSchema), async function (req, res, next) {
     const { body: movie } = req;
     try {
       // const createdMovieId = await Promise.resolve(moviesMock[0].id);
-      const createdMovieId = await moviesService.createMovie({  movie });
+      const createdMovieId = await moviesService.createMovie({ movie });
       res.status(201).json({
         data: createdMovieId,
         message: 'Movie created...!!'
       });
-    } catch(err) {
+    } catch (err) {
       next(err);
     }
   });
 
-  router.put("/:movieId", async function (req, res, next) {
+  router.put("/:movieId", validationHandler({ movieId: movieIdSchema }, 'params'), validationHandler(updateMovieSchema), async function (req, res, next) {
     const { body: movie } = req;
     const { movieId } = req.params;
     try {
       // const updatedMovieId = await Promise.resolve(moviesMock[0].id);
-      const updatedMovieId = await moviesService.updateMovie( { movieId, movie });
+      const updatedMovieId = await moviesService.updateMovie({ movieId, movie });
 
       res.status(200).json({
         data: updatedMovieId,
         message: 'Movie updated...!!'
       })
-    } catch(err) {
+    } catch (err) {
       next(err);
     }
   });
 
-  router.delete("/:movieId", async function (req, res, next) {
+  router.delete("/:movieId",validationHandler({ movieId: movieIdSchema }, 'params'), async function (req, res, next) {
     const { movieId } = req.params;
     try {
       // const deleteddMovieId = await Promise.resolve(moviesMock[0].id);
@@ -95,7 +103,7 @@ function moviesApi(app) {
         data: deleteddMovieId,
         message: 'Movie deleted...!!'
       })
-    } catch(err) {
+    } catch (err) {
       next(err);
     }
   });
@@ -105,13 +113,13 @@ function moviesApi(app) {
     const { movieId } = req.params;
     try {
       // const updatedMovieId = await Promise.resolve(moviesMock[0].id);
-      const replacedMovieId = await moviesService.replaceMovie( { movieId, movie });
+      const replacedMovieId = await moviesService.replaceMovie({ movieId, movie });
 
       res.status(200).json({
         data: replacedMovieId,
         message: 'Movie reeplaced...!!'
       })
-    } catch(err) {
+    } catch (err) {
       next(err);
     }
   });

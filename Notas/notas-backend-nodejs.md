@@ -842,6 +842,166 @@ En ese código realizamos de nuevo la conección a una base de datos específica
 
 # Conoce como funcionan los Middleware en Express.js
 
+## ¿Qué es un middleware? Capa de manejo de errores usando un middleware
+
+Es una pieza de software que está en medio de otra. 
+
+### Notas de los compañeros.
+
+1. Un Middleware es una capa intermedia que intercepta la información de algo, un middleware se define por defecto con una función del siguiente formato:
+
+```
+function(req,res,next){
+	next()
+}
+```
+
+Donde:
+
+**req** es un httpRequest() con la información de la petición
+**res** es un httpResponse() con la respuesta de la petición
+**next** es un callback de la siguiente función a llamar
+
+Para definir un middleware que reciba un error, sólo se le agregaría un argumento con el error
+
+```
+function errorHandler(err, req, res, next){
+	if(err){
+		res.status(err.status || 500);
+		res.json({error:err})
+	}
+	next();
+}
+```
+
+2. Trabajo con Windows y tuve un ligero problema con la variable de entorno en el archivo errorHandlres.js
+
+```if(config.dev)``` siempre retornaba true
+
+Haciéndome imposible visualizar el cambio de funcionalidad, de el errorHandler, en las pruebas con postman al cambiar de entorno(dev to prod).
+
+Resulta que en Windows ocurre lo siguiente:
+
+// En package.json
+```"start": "set NODE_ENV=production && node index"```
+
+//en errorHandlers.js
+
+```
+console.log(process.env.NODE_ENV === 'production') //false
+console.log(process.env.NODE_ENV.trim() === 'production') //true
+```
+
+En windows al parecer inserta caracteres especiales a la variable de entorno. Por ello, realicé los siguientes cambios:
+
+package.json:
+
+```"dev": "set DEBUG=app:* && set NODE_ENV=development && nodemon index",```
+
+config/index.js
+
+```dev: process.env.NODE_ENV.trim() !== 'production',```
+
+Para usar el entorno de desarrollo seteé la variable de entorno “development” para que al usar trim() no me marque error por asignar un método a un undefined.
+
+3. Si cuando corren el servidor no diferencia si está en producción o en desarrollo, veriquen su package.json. El comando ‘start’ debe estar así:
+
+```"start": "set NODE_ENV=production&&node index.js"```
+
+Nota: Esto me parece que solo funciona en Windows
+
+4. Si alguien no consigue que le salga el error capturado correctamente en modo production sólo tiene que hacer estos cambios:
+package.json:
+
+```“start”: " set NODE_ENV=production && node index"```
+
+config/index.js:
+
+```dev: process.env.NODE_ENV.trim() !== ‘production’,```
+
+Mucha suerte!! 😄
+
+5. Los middlewares son una capa de complejidad de código que se agrega en el intermedio de otras dos capas. Se le conocer como el pegamento de código, ya que se encarga de unir dos capas.
+
+El objetivo principal de los middlewares es corroborar que los datos que están siendo enviados de una capa hacia otra sí cumplan los parámetros establecido o sean los datos correctos. De ser así, este middleware los dejará pasar; de lo contrario  se ejecutará la acción que le indiquemos, que en la mayoría de los casos suele ser un error.
+
+6. **Dato:** El orden en el que ponemos los middlewares en este caso importa muchísimo.
+
+Estamos poniendo los middlewares de error después de las rutas porque cuando se crea el error en la ruta pasa al catch y ese catch tiene un callback next() que le pasa el error al siguiente middleware.
+
+El siguiente middleware es logErrors que igual tiene un callback next() que le envía el error al siguiente middleware.
+
+Podemos comprobar que si invertimos el orden de los middlewares y ponemos _errorHandler antes que logErrors en el index después de las rutas vemos que no funcionará el middleware logErrors porque el middleware errorHandler no está pasándole el error a un siguiente middleware por medio del callback next().
+
+## Manejo de errores asíncronos y síncronos en Express
+
+[Aquí está el documento de Platzi](https://platzi.com/clases/1646-backend-nodejs/22039-manejo-de-errores-asincronos-y-sincronos-en-expres/)
+
+[Documentación oficial sobre el manejo de errores](https://expressjs.com/en/guide/error-handling.html)
+
+## Capa de validación de datos usando Middleware
+
+Es necesaria para que cuando se consuman los endpoints se sepa o se puedan validar esquemas o validaciones de la información que se envía. Si los datos del usuario son errados, se puede devolver un error que le ayude al usuario.
+
+## ¿Qué es Joi y Boom?
+
+**Joi** (Object Schema Validation). Sirve para validar que los datos que recibimos vengan en el formato adecuado.
+
+**Boom** (HTTP-friendly error objects). Nos ayuda a imprimir errores comunes en peticiones HTTP de forma sencilla
+
+**Documentación oficial:**
+
+[Boom](https://github.com/hapijs/boom)
+[Joi](https://github.com/hapijs/joi)
+
+## Implementando Boom
+
+Instalamos Boom:
+
+```npm i @hapi/boom```
+
+### Notas compañeros.
+
+1. Boom nos provee una serie de utilidades para retornar errores HTTP, cada utilidad es un objeto de respuesta de tipo Boom que incluye las siguientes propiedades:
+
+**isBoom** - si es true indica que es una instancia de Boom.
+
+**isServer** - si es true indica que el código de respuesta es mayor o igual 500, aquí más informacion de los codigos de respuesta [HTTP status Code](https://developer.mozilla.org/es/docs/Web/HTTP/Status).
+
+**message** - el mensaje del error.
+**typeof** - el constructor usado para crear el error (ejemplo: Boom.badRequest).
+**output** - la respuesta formateada (generalmente esta es la que usamos) y contiene las siguientes claves:
+
+**statusCode** - código de estatus HTTP.
+**headers** - un objeto que contiene encabezados HTTP donde cada clave es un nombre de encabezado y el valor es el contenido del encabezado.
+**payload** - el objeto formateado usado como respuesta y contiene las siguientes claves:
+- **statusCode** - código de estatus HTTP, proviene de statusCode
+- **error** - nombre derivado del error HTTP statusCode.
+- **message** - mensaje de error derivado de error.message
+
+## Implementando Joi
+
+Instalamos Joi, en ```npm i @hapi/joi```
+
+### Notas de los compañeros.
+
+1. Estamos colocando el middleware validation handler entre la ruta y el middleware final. Asi mismo podemos colocar varios middleware.
+
+¡Esto es lo que querias decir con la explicación del middleware con la metafora de la población y el agua! colocamos varios intermediarios antes de la acción HTTP final.
+
+2. Recomendación:
+
+Estas clases donde se implementan librerías de 3ros, hay que verlas, para aprender lo que se puede hacer y la razón por la que se hace así. El codigo como tal no es lo mas relevante ya que la implementacion puede variar de una version a otra.
+
+3. Join no está deprecada, simplemente ahora forma parte del ecosistema hapi.
+
+[Ecosistema Hapi](https://www.npmjs.com/package/@hapi/joi)
+
+4. Hay una librería muy útil que nos da la validación para los id de mongodb. [Verla aquí.](https://www.npmjs.com/package/joi-objectid)
+
+
+
+
 
 
 
