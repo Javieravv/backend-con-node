@@ -3,6 +3,7 @@
  */
 
 const express = require('express');
+const bodyParse = require('body-parser');
 const app = express();
 
 // Cargamos el archivo de configuración 
@@ -22,6 +23,7 @@ moviesApi(app);
 app.use(notFoundHandler);
 // Los middlewares siempre deben ir al final de las rutas.
 // Manejadores de errores
+app.use(bodyParse.urlencoded({ extended: false }));
 app.use(logErrors);
 app.use(wrapErrors);
 app.use(errorHandler);

@@ -983,6 +983,10 @@ Instalamos Boom:
 
 Instalamos Joi, en ```npm i @hapi/joi```
 
+**_Nota Importante:_** Para cuando se hizo o se grabó el curso de Platzi, la versión de Joi era la 15.0.3 y para cuando tomé el curso (Mayo de 2020) Joi tenía la versión 17.0.1, razón por la cual presentó errores y no funcionó. Por eso para instalar la versión que usó el curso se empleó ```npm install --save @hapi/joi@15.0.3```.
+
+Para desinstalar la versión inicialmente instalada se empleó el comando ```npm uninstall --save @hapi/joi```.
+
 ### Notas de los compañeros.
 
 1. Estamos colocando el middleware validation handler entre la ruta y el middleware final. Asi mismo podemos colocar varios middleware.
@@ -999,6 +1003,103 @@ Estas clases donde se implementan librerías de 3ros, hay que verlas, para apren
 
 4. Hay una librería muy útil que nos da la validación para los id de mongodb. [Verla aquí.](https://www.npmjs.com/package/joi-objectid)
 
+## Probar la validación de los endpoints
+
+En esta parte se probó la validación efectuada de los endpoints utilizando la herramienta postman, previo haber corrido ```npm run dev```. Tener en cuenta que se tuvo que instalar la versión de **Joi** empleada en el curso, por cuanto la instalada al momento de hacerlo era una superior y había que cambiarse el código del curso.
+
+**IMPORTANTE: Investigar cómo sería la implementación de _joi_ con la última versión.**
+
+### Notas de lso compañeros.
+
+1. [Pasar objeto js a json](https://www.convertonline.io/convert/js-to-json)
+
+2. La versión 16.1.1 de Joi salió ayer con algunos cambios que rompen el código, por ende es muy probable que las validaciones de datos no te funcionen. Puedes encontrar [acá](https://github.com/hapijs/joi/issues/2037) más información al respecto.
+
+Para corregir estos errores sólo debes meter tus objetos de schema que le pasas a la función validate en una función _joi.object()_. Y llamar el método validate desde el schema, ahora sólo va a recibir la data. Esto va a afectar principalmente tres porciones de código del proyecto, la primera son los schemas que declaras, quedarían así:
+
+```
+const joi = require('@hapi/joi')
+const createMovieSchema = joi.object({
+    title: movieTitleSchema.required(),
+    year: movieYearSchema.required(),
+    cover: movieCoverSchema.required(),
+    description: movieDescriptionSchema.required(),
+    duration: movieDurationSchema.required(),
+    contentRating: movieContentRatingSchema.required(),
+    source: movieSourceSchema.required(),
+    tags: movieTagsSchema
+})
+```
+
+La segunda son los métodos de las rutas de movies, quedarían así:
+
+```const express = require('express')
+const joi = require('@hapi/joi')
+const { MovieService } = require('../services')
+const {
+    movieIdSchema,
+    createMovieSchema,
+    updateMovieSchema
+} = require('../utils/schemas/movies')
+
+const validationHandler = require('../utils/middlewares/validation-handler')
+
+functionmoviesApi(app) {
+    const router = express.Router()
+    const movieService = new MovieService()
+
+    app.use('/api/movies', router)
+
+    router.get(
+        '/:movieId',
+        validationHandler(joi.object({ movieId: movieIdSchema }), 'params'),
+        asyncfunction(req, res, next) {
+            const { movieId } = req.params
+            try {
+                const movie = await movieService.getMovie({ movieId })
+                res.status(200).json({
+                    data: movie,
+                    message: 'movie by id'
+                })
+            } catch (error) {
+                next(error)
+            }
+        }
+    )
+}
+
+module.exports = moviesApi
+```
+
+Y la tercera es el método validate del validation handler que quedaría así:
+
+```
+functionvalidate(data, schema) {
+    const { error } = schema.validate(data)
+    returnerror
+}
+```
+
+Habiendo hecho estos cambios vas a poder validar tus datos.
+
+O podrías instalar la versión 15.1.0 de @hapi/joi que es la que usa el profesor 😛
+
+## Middlewares populares en Express.js
+
+Hay muchos Middlewares populares para Express. [Aquí hay una lista](https://platzi.com/clases/1646-backend-nodejs/22248-middlewares-populares-en-expressjs/) dada por el Profesor del curso de Platzi.
+
+Como se trata de utilizar alguno, entonces se optó por _CORS_ que ya viene por defecto instalado con node.
+
+Para usarlo:
+
+```
+const cors = require('cors);
+...
+app.use(cors());
+```
+# Implementa tests en Node.js
+
+## Creación de tests para nuestros endpoints
 
 
 
