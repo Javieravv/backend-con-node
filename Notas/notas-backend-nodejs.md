@@ -1101,6 +1101,28 @@ app.use(cors());
 
 ## Creación de tests para nuestros endpoints
 
+Se explora cómo crear testin para la API que ha sido creada con node.js. 
+
+Aquí se hace test para la capa de endpoints ubicados en las rutas.
+
+Se deberán instalar dependencias para los test, que son:
+
+- mocha
+- supertest: para levantar servidor temporal
+- sinon: ayuda a hacer mocks para test
+- proxyquire: ayuda a inyectar mocks cuandose requieran los paquetes.
+
+Para instalarlos: ```npm i -D mocha supertest sinon proxyquire```
+
+- **Pasos a seguir:** 
+
+* Modificamos archivo de mocks, creando algunas utilidades.
+* Definimos archivo para levantar un servidor para pruebas.
+* Creamos los archivos para los distintos test. Se recomienda que terminen con la extensión _.test.js_.
+* En el _package.json_ creamos un script para los test, de la sigueinte manera: ```"test": "mocha --exit" ```.
+
+Como los test están en la carpeta _test_ y terminan en _.test.js_, entonces esa línea los deberá encontrar.
+
 
 
 
