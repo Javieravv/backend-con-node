@@ -1123,8 +1123,97 @@ Para instalarlos: ```npm i -D mocha supertest sinon proxyquire```
 
 Como los test están en la carpeta _test_ y terminan en _.test.js_, entonces esa línea los deberá encontrar.
 
+### Notas de los compañeros.
 
+1. Algo que me di cuenta, es que es super importante que al hacer el deepEqual asegurarse que los datos que estan comparando sean exactamente iguales. En este caso tanto la data como el mensaje que se reciben.
 
+Lo que pasa es que , se levanta el servidor con supertest y le pasas las rutas de movies a ese servidor y cuando le hagas un request.get(/api/movies) por ejemplo va a realizar ese llamado y acuerdate que nos devuelve un json con data, y message y eso lo compara con lo que le digamos para ver si se cumple o no el test , si no tienen los mismos datos , es porque esta mal y el test fallara.
 
+2. Les recomiendo jest para los test unitarios, tanto en el front como en el back
 
+3. cuando vayan a crear los ‘servicios’ de mock, asegúrense que las funciones tenga el mismo nombre que del servicio original (osea, si en su capa de servicio para obtener peliculas es getAll, en el mock coloquenlo igual), dure media hora con un error por culpa de una ‘s’ 😃
+
+## Creación de tests para nuestros servicios
+
+Lo que interesa es testear los servicios en lo que va a devolver. Por ello se mokeará la librería de Mongo.
+
+### Notas de lso compañeros.
+
+1. ¿Que es un stub?
+
+Respuesta: Un stub es una implementación de una interfaz que puede servir data o respuestas.
+
+Por ejemplo, en la clasa pasada hubieron estas líneas.
+```
+const route = proxyquire('../routes/movies', {
+    '../services/movies': MoviesServiceMock,
+});
+```
+Ahí usamos un stub para reemplazar el servicio real por uno falso pero que tbm genere data.
+
+2. [Artículo interesante para entender los test en Javascrpt](https://solidgeargroup.com/tests-unitarios-en-javascript-sinon/?lang=es)
+
+## Creación de tests para nuestras utilidades
+
+TDD es primero crear los test y luego la funcionalidad, lo cual se aconseja cuando se tiene claro la lógica del negocio o cuando se tiene un bug que ayuda a corregirlo y se asegura que no vuelva a ocurrir.
+
+### Notas de los compañeros.
+
+1. TDD es test driven development.
+
+En otras palabras: crear primero las pruebas que hay que superar y después desarrollar el código.
+
+El profesor considera magnífico usar esto cuando se tiene muy claro la lógica de negocio.
+Si no lo tienes claro no es recomendable.
+También es recomendable hacerlo cuando tienes un bug para que tu solución de él perdure en el tiempo.
+
+2. Otra manera de resolver si el mensaje es listado lo pueden hacer con el operador ternario 😃
+
+```
+functionbuildMessage(entity, action) {
+  return action === "list" ? `${entity}s ${action}ed` : `${entity}${action}d`;
+}
+
+module.exports = buildMessage;
+```
+
+## Agregando un comando para coverage
+
+Un comando de coverage permite identificar en dónde se está fallando y cómo puede corregirse.
+
+Para instalarlo usamos una herramienta denominada _nyc_ y se instala ```npm install -D nyc```
+
+Luego creamos un comando en el _package.json_, así: ```"cover": "nyc npm run test" ```
+Esto porque el cover se hace a partir de los test que han sido creados.
+
+Para correrlo hay que crear los scripts en el package.json, así:
+
+```
+"cover": "nyc npm run test",
+"report": "nyc report --reporter=html && open coverage/index.html"
+```
+El _report_ se emplea para que se haga un reporte de los test que se han hecho.
+
+También hay que configurar los coverage al final del _package.json_, así:
+
+```
+"nyc": {
+        "all": true,
+        "includes": ["routes", "services", "lib", "utils"]
+}
+```
+
+El reporte que se genera permite visualizar a qué se le ha hecho test y a qué no, con lo cual se podrá tener una idea de lo probado en el proyecto.
+
+Se recomienda hacer test de un 80% de la aplicación, no completa, pues lo que importa no es hacer pruebas sino hacer productos.
+
+El profesor dice que hacer test es más demorado que hacer el código de la aplicación. **Para ello hay que tener mucha paciencia**.
+
+**RETO: Hacer los test de las demás funcionalidades de la API.**
+
+## Debugging e inspect
+
+Esta parte del curso se lee [aquí](https://platzi.com/clases/1646-backend-nodejs/22253-debugging-e-inspect/).
+
+# Despliega tu primera aplicación en Express.js
 
