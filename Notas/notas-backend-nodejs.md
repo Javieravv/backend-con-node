@@ -1217,3 +1217,72 @@ Esta parte del curso se lee [aquí](https://platzi.com/clases/1646-backend-nodej
 
 # Despliega tu primera aplicación en Express.js
 
+## Considerando las mejores prácticas para el despliegue
+
+* Remover contraseñas quemadas: tenerlas directamente en el código y no en variables o variables de entorno. Se recomienda esto último.
+
+* Encapsular código spaghetti: código muy difícil de leer o crece mucho. Se recomienda mover porciones de código a funciones. Mas claro.
+
+* Revisar la estructura del proyecto: 
+
+* Configurar los scripts de build: confdigurar los scripts de buid. Debe estar esto claro.
+
+* Agregar soporte de caché: para evitar ir a la BD a traer una misma película que ha ya sido consultada.
+
+* Añadir HTTPS y CORS: por seguridad. CORS sirve para que no todo cliente se conecte al backed y no hagan males.
+
+* Revisar otras prácticas de seguridad: revisar OWS y revisar lecturas de seguridad.
+
+- [Artículo que explica cómo remover datos sensibles del repositorio](https://help.github.com/en/github/authenticating-to-github/removing-sensitive-data-from-a-repository)
+
+- [OWASP](https://owasp.org/www-project-top-ten/)
+
+- [Curso de buenas prácticas para escritura de código](https://platzi.com/cursos/mejor-codigo/)
+
+## Variables de entorno, CORS y HTTPS
+
+[Artículo del tema de Platzi](https://platzi.com/clases/1646-backend-nodejs/22255-variables-de-entorno-cors-y-https/)
+
+## ¿Cómo implementar una capa de manejo de caché?
+
+Para evitar problemas con el caché del navegador, se ejecuta una funcionalidad para que el caché se controle cada cierto tiempo. Mínimo cada 5 minutos.
+
+- [Caché Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
+
+- [Manejo del caché con Expresss en producción](https://expressjs.com/en/advanced/best-practice-performance.html#cache-request-results)
+
+- [Manejo del caché con Expresss en producción - 1](https://expressjs.com/en/advanced/best-practice-performance.html#set-node_env-to-production)
+
+## ¿Cómo contener tu aplicación en Docker?
+
+[Lectura del tema - Platzi](https://platzi.com/clases/1646-backend-nodejs/22257-como-contener-tu-aplicacion-en-docker/)
+
+## Desplegar en Now la aplicación.
+
+Desplegamos la aplicación en Now, que ahora se llama Vercel.
+
+Se instala con ```npm i -g vercel ```
+
+Lo primero que se debe hacer es considerar las variables de entorno, pues si no las pasamos al despliegue no tendrán valores.
+
+Now o Vercel permite administrar esas variables mediante los _secrets_, el cual guarda la variable de entorno y NUNCA nos deja acceder a ese resultado.
+
+Para hacerlo se emplea:
+
+```now secret add platzivideos-db-user <valor> ``` 
+
+Se hace lo mismo para cada variable de entorno.
+
+Para saber los _secrets_ agregados se ejecuta ```vercel secrets ls ```lo cual reportará todos los secretos agregados. Se verá el nombre de las variables, pero no su valor.
+
+El paso a seguir es crear en la raiz del proyecto un archivo llamado ```now.json ```  para que vercel sepa cómo desplegar la aplicación.
+
+Para probar si sirve la configuración, se corre un despliegue local con la instrucción ```vercel dev ```, el cual nos mostrará posibles errores.
+
+
+
+
+
+
+
+

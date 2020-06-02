@@ -4,6 +4,9 @@
  * 
  * Los mocks son datos falsos, generados en una herramienta web.
  * 
+ * TAmbién agregamos caché, pero solo a aquellos que obtienen recursos. Como los get
+ * No a los Post
+ * 
  */
 
 const express = require('express');
@@ -16,6 +19,8 @@ const {
 } = require('../utils/schemas/movies');
 
 const validationHandler = require('../utils/middleware/validationHandler');
+const cacheResponse = require('../utils/cacheResponse');
+const { FIVE_MINUTES_IN_SECONDS, SIXTY_MINUTES_IN_SECONDS  } = require('../utils/time.js');
 
 // const { moviesMock } = require('../utils/mocks/movies');
 
@@ -33,6 +38,8 @@ function moviesApi(app) {
 
   router.get("/", async function (req, res, next) {
     // const movies = await Promise.resolve(moviesMock);
+    // el tiempo de caché se debe determinar en la lógica de negocios.
+    cacheResponse(res, FIVE_MINUTES_IN_SECONDS);
     const { tags } = req.query;
 
     try {
@@ -49,6 +56,8 @@ function moviesApi(app) {
   });
 
   router.get("/:movieId", validationHandler({ movieId: movieIdSchema }, 'params'), async function (req, res, next) {
+    // Le agregamos caché
+    cacheResponse(res, SIXTY_MINUTES_IN_SECONDS);
     const { movieId } = req.params;
     try {
       // const movies = await Promise.resolve(moviesMock[0]);
