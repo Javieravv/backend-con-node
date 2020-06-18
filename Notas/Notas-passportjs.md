@@ -6,5 +6,6 @@ Las notas de este curso y de los sucesivos tomados se escriben en la aplicación
 
  ## Paquetes y configuraciones usados en el curso de Passports.Js
 
+- Para ***jwt***: ```npm i jsonwebtoken```
 
 
