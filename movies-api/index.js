@@ -9,6 +9,8 @@ const app = express();
 // Cargamos el archivo de configuración 
 const { config } = require('./config/index.js');
 const moviesApi = require('./routes/movies.js');
+const userMoviesApi = require('./routes/userMovies.js');
+
 const {
     logErrors,
     wrapErrors,
@@ -18,9 +20,14 @@ const {
 const notFoundHandler = require ('./utils/middleware/notFoundHandle');
 
 app.use(express.json());
+
+// routes
 moviesApi(app);
+userMoviesApi(app);
+
 // para capturar error 404
 app.use(notFoundHandler);
+
 // Los middlewares siempre deben ir al final de las rutas.
 // Manejadores de errores
 app.use(bodyParse.urlencoded({ extended: false }));
@@ -31,5 +38,3 @@ app.use(errorHandler);
 app.listen(config.port, function () {
     console.log(`Listening http://localhost:${config.port}`);
 });
-
-
