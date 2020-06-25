@@ -33,6 +33,7 @@ passport.use(
         delete user.password;
         return cb (null, user);
     } catch (error) {
+        console.log ('SE HA PRESENTAEDO UN ERROR EN ESTE PÚNTO', error);
         return cb (error);
     }
 }))
