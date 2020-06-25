@@ -8,6 +8,8 @@ const app = express();
 
 // Cargamos el archivo de configuración 
 const { config } = require('./config/index.js');
+
+const authApi = require('./routes/auth');
 const moviesApi = require('./routes/movies.js');
 const userMoviesApi = require('./routes/userMovies.js');
 
@@ -22,6 +24,7 @@ const notFoundHandler = require ('./utils/middleware/notFoundHandle');
 app.use(express.json());
 
 // routes
+authApi(app);
 moviesApi(app);
 userMoviesApi(app);
 

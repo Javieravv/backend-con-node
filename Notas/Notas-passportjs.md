@@ -23,8 +23,8 @@ Paquetes que se usan:
 
 - passport
 - jsonwebtoken
-- passport-http
-- passport-jwt
+- passport-http: para implementar estrategia basic
+- passport-jwt: para implementar estrategia de JWT
 - chalk: en modo de desarrollo. Permite pintar colores en la terminal.
 
 ```

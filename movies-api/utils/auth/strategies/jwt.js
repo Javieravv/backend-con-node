@@ -1,0 +1,44 @@
+/** 
+ * Implementamos estrategia JWT
+*/
+
+const passport = require('passport');
+const { Strategy, ExtractJwt } = require('passport-jwt');
+const boom = require('@hapi/boom');
+
+const UsersService = require('../../../services/users');
+const { config } = require('../../../config');
+
+passport.use(
+    new Strategy(
+        {
+            secretOrKey: config.authJwtSecret,
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+        },
+        async function (tokenPayload, cb) {
+            const usersService = new UsersService();
+
+            try {
+                const user = await usersService.getuser({ email: tokenPayload.email });
+                
+                // busca el usuario
+                if (!user) {
+                    return cb(boom.unauthorized(), false);
+                }
+
+                // Hasta aquí el usuario sí está. El password vendrá
+                // en el token decodificado.
+
+                delete user.password;
+
+                cb(null, {
+                    ...user,
+                    scopes: tokenPayload.scopes
+                })
+
+            } catch (error) {
+                return cb(error);
+            }
+        }
+    )
+);
