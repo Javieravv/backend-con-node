@@ -3,8 +3,13 @@ const passport = require('passport');
 const boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
 const ApiKeysService = require('../services/apiKeys');
+const UsersService = require('../services/users');
+const validationHandler = require('../utils/middleware/validationHandler');
+
+const { createUserSchema } = require('../utils/schemas/users');
 
 const { config } = require('../config');
+//const { valid } = require('@hapi/joi');
 
 // Basic strategy.
 require('../utils/auth/strategies/basic');
@@ -12,7 +17,11 @@ require('../utils/auth/strategies/basic');
 function authApi(app) {
     const router = express.Router();
     app.use('/api/auth', router);
+
     const apiKeysService = new ApiKeysService();
+    const usersService = new UsersService();
+
+    // Implementamos el acceso a usuarios
     router.post('/sign-in', async function (req, res, next) {
         // que del cuerpo venga el apiKeyToken para determinar 
         // qué clase de permisos vamos a firmar.
@@ -26,7 +35,7 @@ function authApi(app) {
                 if (error || !user) {
                     next(boom.unauthorized());
                 }
-                console.log ('HASTA AQUÍ EL USUARIO ES ', user);
+                console.log('HASTA AQUÍ EL USUARIO ES ', user);
 
                 req.login(user, { session: false }, async function (error) {
                     if (error) {
@@ -38,7 +47,7 @@ function authApi(app) {
                         next(boom.unauthorized());
                     }
 
-                    console.log ('AQUÍ VAMOS BIEN...EL USUARIO ES ', user);
+                    console.log('AQUÍ VAMOS BIEN...EL USUARIO ES ', user);
 
                     const { _id: id, name, email } = user;
 
@@ -60,6 +69,27 @@ function authApi(app) {
             }
         })(req, res, next); // es importante porque se está ante un custom callback
     });
+
+    // Implementamos la creación de usuarios.
+    router.post('/sign-up',
+        validationHandler(createUserSchema),
+        async function (req, res, next) {
+            const { body: user } = req;
+
+            try {
+                // Este serviciocrea el usuario
+                const createdUserId = await usersService.createUser({ user });
+                console.log ('EL NUEVO USUARIO CREADO ES: ', createdUserId)
+
+                res.status(201).json({
+                    data: createdUserId,
+                    message: 'user created'
+                })
+            } catch (error) {
+                next(error);
+            }
+        }
+    )
 }
 
 module.exports = authApi;

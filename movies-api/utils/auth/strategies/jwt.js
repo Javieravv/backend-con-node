@@ -19,7 +19,7 @@ passport.use(
             const usersService = new UsersService();
 
             try {
-                const user = await usersService.getuser({ email: tokenPayload.email });
+                const user = await usersService.getUser({ email: tokenPayload.email });
                 
                 // busca el usuario
                 if (!user) {
