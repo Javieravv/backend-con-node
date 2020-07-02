@@ -13,8 +13,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Agregamos las variables de timpo en segundos
-const THIRTY_DAYS_IN_SEC = 2592000;
-const TWO_HOURS_IN_SEC = 7200;
+const THIRTY_DAYS_IN_SEC = 2592000000;
+const TWO_HOURS_IN_SEC = 7200000;  
 
 // Estategia basic
 require('./utils/auth/strategies/basic');
@@ -38,11 +38,22 @@ app.post("/auth/sign-in", async function (req, res, next) {
 
         // Si el atributo rememberMe es verdadero la expiración será en 30 dias
         // de lo contrario la expiración será en 2 horas
-        res.cookie("token", token, {
-          httpOnly: !config.dev,
-          secure: !config.dev,
-          maxAge: rememberMe ? THIRTY_DAYS_IN_SEC : TWO_HOURS_IN_SEC
-        });
+        // res.cookie("token", token, {
+        //   httpOnly: !config.dev,
+        //   secure: !config.dev,
+        //   maxAge: rememberMe ? THIRTY_DAYS_IN_SEC : TWO_HOURS_IN_SEC
+        // });
+
+        if (!config.dev) {
+          res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            maxAge: rememberMe ? THIRTY_DAYS_IN_SEC : TWO_HOURS_IN_SEC
+          });
+        } else {
+          res.cookie("token", token)
+        }
+
 
         res.status(200).json(user);
       })
@@ -76,6 +87,9 @@ app.post("/user-movies", async function (req, res, next) {
   try {
     const { body: userMovie } = req;
     const { token } = req.cookies;
+    console.log ('EL USER MOVIE  ...', userMovie);
+    console.log ('EL TOKEN ES ...', token);
+
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/user-movies`,
       headers: { Authorization: `Bearer ${token}` },
@@ -98,6 +112,10 @@ app.delete("/user-movies/:userMovieId", async function (req, res, next) {
   try {
     const { userMovieId } = req.params;
     const { token } = req.cookies;
+
+    console.log ('EL TOKEN PARA BORRAR QUE VIENE DE LA COOKIE ES ...', token);
+    console.log ('EL MOVIE ID A BORRAR ES....', userMovieId);
+
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/user-movies/${userMovieId}`,
       headers: { Authorization: `Bearer ${token}` },

@@ -13,11 +13,14 @@ class UserMoviesService {
     }
 
     async createUserMovie ( { userMovie } ) {
+        console.log ('CREAMOS PELÍCULA PARA USUARIO...OK');
         const createdUserMovieId = await this.mongoDB.create (this.collection, userMovie);
+        console.log ('LA PELÍCULA CREADA ES....', createdUserMovieId);
         return  createdUserMovieId;
     }
 
     async deleteUserMovie ({ userMovieId }) {
+        console.log ('INTENTAMOS BORRAR. EL USERMOVIEID ES...', userMovieId);
         const deletedUserMovieId = await this.mongoDB.delete (this.collection, userMovieId);
         return  deletedUserMovieId;
     }

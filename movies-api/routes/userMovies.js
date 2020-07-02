@@ -45,7 +45,7 @@ function userMoviesApi(app) {
                 const createdUserMovieId = await userMoviesService.createUserMovie({ userMovie });
                 res.status(201).json({
                     data: createdUserMovieId,
-                    message: 'user movie created'
+                    message: 'user movie has been created'
                 })
             } catch (error) {
                 next(error);
