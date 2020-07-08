@@ -32,3 +32,4 @@ npm i passport jsonwebtoken passport-http passport-jwt
 npm i -D chalk
 ```
 También deberemos agregar otras variables de entorno.
+

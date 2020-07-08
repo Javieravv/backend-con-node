@@ -14,10 +14,14 @@ app.use(cookieParser());
 
 // Agregamos las variables de timpo en segundos
 const THIRTY_DAYS_IN_SEC = 2592000000;
-const TWO_HOURS_IN_SEC = 7200000;  
+const TWO_HOURS_IN_SEC = 7200000;
 
 // Estategia basic
 require('./utils/auth/strategies/basic');
+
+// Estrategia google OAuth
+require('./utils/auth/strategies/oauth');
+
 
 app.post("/auth/sign-in", async function (req, res, next) {
   // Obtenemos el atributo rememberMe desde el cuerpo del request
@@ -28,6 +32,7 @@ app.post("/auth/sign-in", async function (req, res, next) {
       if (error || !data) {
         next(boom.unauthorized());
       };
+
 
       req.login(data, { session: false }, async function (error) {
         if (error) {
@@ -48,12 +53,13 @@ app.post("/auth/sign-in", async function (req, res, next) {
           res.cookie("token", token, {
             httpOnly: true,
             secure: true,
-            maxAge: rememberMe ? THIRTY_DAYS_IN_SEC : TWO_HOURS_IN_SEC
+            maxAge: rememberMe
+              ? THIRTY_DAYS_IN_SEC
+              : TWO_HOURS_IN_SEC
           });
         } else {
           res.cookie("token", token)
         }
-
 
         res.status(200).json(user);
       })
@@ -87,8 +93,8 @@ app.post("/user-movies", async function (req, res, next) {
   try {
     const { body: userMovie } = req;
     const { token } = req.cookies;
-    console.log ('EL USER MOVIE  ...', userMovie);
-    console.log ('EL TOKEN ES ...', token);
+    console.log('EL USER MOVIE  ...', userMovie);
+    console.log('EL TOKEN ES ...', token);
 
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/user-movies`,
@@ -113,8 +119,8 @@ app.delete("/user-movies/:userMovieId", async function (req, res, next) {
     const { userMovieId } = req.params;
     const { token } = req.cookies;
 
-    console.log ('EL TOKEN PARA BORRAR QUE VIENE DE LA COOKIE ES ...', token);
-    console.log ('EL MOVIE ID A BORRAR ES....', userMovieId);
+    console.log('EL TOKEN PARA BORRAR QUE VIENE DE LA COOKIE ES ...', token);
+    console.log('EL MOVIE ID A BORRAR ES....', userMovieId);
 
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/user-movies/${userMovieId}`,
@@ -123,16 +129,44 @@ app.delete("/user-movies/:userMovieId", async function (req, res, next) {
     });
 
     if (status !== 200) {
-      return next(boom.badImplementation())
+      return next(boom.badImplementation('ERROR POR MALA IMPLEMENTACIÓN....??'))
     };
 
     res.status(200).json(data);
 
   } catch (error) {
+    console.log('POR AQUÍ HAY UN ERROR DE MALA IMPLEMENTACIÓN...TRY/CATCH');
     next(error);
   }
 });
 
-app.listen(config.port, function () {
-  console.log(`Listening http://localhost:${config.port}`);
-});
+app.get("/auth/google-oauth", passport.authenticate("google-oauth", {
+  scope: ['email', 'profile', 'openid']
+}))
+
+app.get("/auth/google-oauth/callback",
+  passport.authenticate(
+    "google-oauth",
+    { session: false }
+  ),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized('AQUÍ HAY UN ERROR....EN GOOGLE...'));
+    }
+
+    const { token, ...user } = req.user;
+
+    res.cookie("token", token, {
+      httpOnly: !config.dev,
+      secure: !config.dev
+    })
+
+    res.status(200).json(user);
+  }
+);
+
+app.listen(
+  config.port, function () {
+    console.log(`Listening http://localhost:${config.port}`);
+  }
+);
