@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require('passport');
+const session = require('express-session');
 const boom = require('@hapi/boom');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
@@ -11,6 +12,10 @@ const app = express();
 // body parser
 app.use(express.json());
 app.use(cookieParser());
+// Estas líneas son porque la librería Twitter exige tener una sesión activa
+app.use(session({ secret: config.sessionSecret }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Agregamos las variables de timpo en segundos
 const THIRTY_DAYS_IN_SEC = 2592000000;
@@ -21,6 +26,10 @@ require('./utils/auth/strategies/basic');
 
 // Estrategia google OAuth
 require('./utils/auth/strategies/oauth');
+
+// Estategia Twitter
+require('./utils/auth/strategies/twitter');
+
 
 
 app.post("/auth/sign-in", async function (req, res, next) {
@@ -140,9 +149,14 @@ app.delete("/user-movies/:userMovieId", async function (req, res, next) {
   }
 });
 
-app.get("/auth/google-oauth", passport.authenticate("google-oauth", {
-  scope: ['email', 'profile', 'openid']
-}))
+app.get(
+  "/auth/google-oauth",
+  passport.authenticate("google-oauth",
+    {
+      scope: ["email", "profile", "openid"]
+    }
+  )
+)
 
 app.get("/auth/google-oauth/callback",
   passport.authenticate(
@@ -153,7 +167,7 @@ app.get("/auth/google-oauth/callback",
     if (!req.user) {
       next(boom.unauthorized('AQUÍ HAY UN ERROR....EN GOOGLE...'));
     }
-
+    console.log('VAMOS AQUÍ...AL PARECER TODO VA BIEN....');
     const { token, ...user } = req.user;
 
     res.cookie("token", token, {
@@ -164,6 +178,22 @@ app.get("/auth/google-oauth/callback",
     res.status(200).json(user);
   }
 );
+
+app.get ("/auth/twitter", passport.authenticate("twitter"));
+
+app.get("/auth/twitter/callback", passport.authenticate("twitter", {session: false}), function (req, res, next) {
+  if (!req.user) {
+    next (boom.unauthorized());
+  }
+
+  const {token, ...user} = req.user;
+  res.cookie("token", token, {
+    httpOnly: !config.dev,
+    secure: !config.dev
+  })
+
+  res.status(200).json(user);
+})
 
 app.listen(
   config.port, function () {

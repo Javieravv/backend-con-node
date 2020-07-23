@@ -133,6 +133,7 @@ function authApi(app) {
                         }
                     });
             } catch (error) {
+                console.log ('ERROR PRODUCIDO AQUÍ...');
                 next(error);
             }
         })
