@@ -6,3 +6,5 @@ Curso de Backend con Node.Js
 
 [Whokshops de Node.js](https://nodeschool.io/es/)
 
+[Anotaciones del curso de Passport.Js  de Jasán Hernández](https://github.com/JasanHdz/passportjs/blob/master/notes/notes.md) creadas por el compañero 
+

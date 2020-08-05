@@ -1,0 +1,12 @@
+{
+  "web": {
+    "client_id": "403789805217-i2tovnn4t1j3b2bikkpr83daptln73h4.apps.googleusercontent.com",
+    "project_id": "prefab-galaxy-177719",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "Qr-pUvGVMNNPHc-ka5LhmVIy",
+    "redirect_uris": ["http://localhost:8000/auth/google-oauth/callback"],
+    "javascript_origins": ["http://localhost:8000"]
+  }
+}

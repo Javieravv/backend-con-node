@@ -10,6 +10,8 @@ Notas Importantes:
 
 3. [Repositorio del curso](https://github.com/glrodasz/platzi-backend-node/tree/introduccion-a-streams)
 
+4. [Anotaciones del curso de Passport.Js de Jasán Hernández](https://github.com/JasanHdz/passportjs/blob/master/notes/notes.md)
+
 ## ¿Qué es Node.js?
 
 Node.js es un entorno de ejecución para JavaScript construido con el motor JavaScript V8 de Chrome. JavaScript es un lenguaje interpretado pero en Node.js tenemos algo llamado el JIT Compiler que es una especie de monitor que optimiza fragmentos de código que son ejecutados frecuentemente.

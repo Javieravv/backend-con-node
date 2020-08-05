@@ -1,0 +1,12 @@
+{
+  "web": {
+    "client_id": "229145968108-lgh3p42tjima89k69l2baei94nnp5602.apps.googleusercontent.com",
+    "project_id": "platzivideo-282422",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "oz5nLBCZDSKWw4M9L8jfne_q",
+    "redirect_uris": ["http://localhost:8000/auth/google-oauth/callback"],
+    "javascript_origins": ["http://localhost:8000"]
+  }
+}

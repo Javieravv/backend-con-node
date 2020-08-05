@@ -14,7 +14,8 @@ const MONGO_URI = `mongodb+srv://${USER}:${PASSWORD}@${config.dbHost}:${config.d
 class MongoLib {
     constructor() {
         this.client = new MongoClient(MONGO_URI, { useNewUrlParser: true });
-        this.dbName = DB_NAME;
+        this.dbName = DB_NAME,
+            this.useUnifiedTopology = true;
     }
 
     // Implementamos el método connect empleando el patrón Singleton.
@@ -37,33 +38,41 @@ class MongoLib {
     // Implementamos las acciones para el CRUD
 
     getAll(collection, query) {
-        return this.connect().then(db => {
-            return db.collection(collection).find(query).toArray();
-        })
+        return this.connect()
+            .then(db => {
+                return db.collection(collection).find(query).toArray();
+            })
     }
 
     get(collection, id) {
-        return this.connect().then(db => {
-            return db.collection(collection).findOne({ _id: ObjectId(id) });
-        })
+        return this.connect()
+            .then(db => {
+                return db.collection(collection).findOne({ _id: ObjectId(id) });
+            })
     }
 
     create(collection, data) {
-        return this.connect().then(db => {
-            return db.collection(collection).insertOne(data);
-        }).then(result => result.insertId);
+        return this.connect()
+            .then(db => {
+                return db.collection(collection).insertOne(data);
+            })
+            .then(result => result.insertedId);
     }
 
     update(collection, id, data) {
-        return this.connect().then(db => {
-            return db.collection(collection).updateOne({ _id: ObjectId(id) }, { $set: data }, { upsert: true });
-        }).then(result => result.updsertedId || id);
+        return this.connect()
+            .then(db => {
+                return db.collection(collection).updateOne({ _id: ObjectId(id) }, { $set: data }, { upsert: true });
+            })
+            .then(result => result.updsertedId || id);
     }
 
     delete(collection, id) {
-        return this.connect().then(db => {
-            return db.collection(collection).deleteOne({ _id: ObjectId(id) });
-        }).then(() => id);
+        return this.connect()
+            .then(db => {
+                return db.collection(collection).deleteOne({ _id: ObjectId(id) });
+            })
+            .then(() => id);
     }
 }
 
